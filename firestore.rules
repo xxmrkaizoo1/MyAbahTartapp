@@ -1,0 +1,129 @@
+rules_version = '2';
+
+// Security rules for the MyAbah Tart Lejen app.
+// Deploy with: firebase deploy --only firestore:rules
+// Make someone staff by setting users/{uid}.role to "admin" in the Firebase console.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', 'customer') == 'admin';
+    }
+
+    function onlyChanges(fields) {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(fields);
+    }
+
+    // Orders and refunds copied from the website (tool/import_website_data.py) belong to whoever
+    // verifies the same email in the app; they may only move them onto their own account.
+    function isMyWebsiteHistory() {
+      return signedIn()
+        && resource.data.fromWebsite == true
+        && request.auth.token.email_verified == true
+        && resource.data.email == request.auth.token.email.lower();
+    }
+
+    function claimsWebsiteHistory() {
+      return isMyWebsiteHistory() && request.resource.data.userId == request.auth.uid && onlyChanges(['userId']);
+    }
+
+    // The menu is public. Customers may only touch stock counts, which checkout and cancelling adjust.
+    match /products/{productId} {
+      allow read: if true;
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (signedIn() && onlyChanges(['stock', 'sizeStock']));
+
+      match /reviews/{userId} {
+        allow read: if true;
+        allow create, update: if signedIn() && request.auth.uid == userId
+          && request.resource.data.rating is int
+          && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+          && request.resource.data.comment is string
+          && request.resource.data.comment.size() <= 1000;
+        allow delete: if isAdmin() || (signedIn() && request.auth.uid == userId);
+      }
+    }
+
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Anyone can look up a code they typed (guests try codes in the cart); only staff can list or change vouchers.
+    match /vouchers/{code} {
+      allow get: if true;
+      allow list, write: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == userId);
+      allow create: if signedIn() && request.auth.uid == userId && !('role' in request.resource.data);
+      // Staff can add and remove the made-up customers from "Add sample customers & sales".
+      allow create, delete: if isAdmin() && userId.matches('sample-[0-9]+');
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == userId
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']));
+    }
+
+    match /orders/{code} {
+      // `resource == null` lets checkout confirm a new order code is free.
+      allow get: if isAdmin() || (signedIn() && (resource == null || resource.data.userId == request.auth.uid));
+      allow list: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid) || isMyWebsiteHistory();
+
+      // Customers place online orders; staff also record completed counter sales.
+      allow create: if isAdmin() || (signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.channel == 'online'
+        && request.resource.data.status == 'received'
+        && request.resource.data.paymentStatus == 'unpaid'
+        && !('refundedAmount' in request.resource.data));
+
+      // Customers can only cancel their own order before the kitchen starts on it.
+      allow update: if isAdmin() || claimsWebsiteHistory() || (signedIn()
+        && resource.data.userId == request.auth.uid
+        && resource.data.status == 'received'
+        && request.resource.data.status == 'cancelled'
+        && onlyChanges(['status', 'cancelledAt', 'cancellationReason', 'cancellationNote']));
+
+      // Real orders are never deleted; only the made-up sample sales can be removed.
+      allow delete: if isAdmin() && resource.data.get('sample', false) == true;
+    }
+
+    // Customers ask for refunds on their own completed orders; staff approve, decline or issue them.
+    match /refunds/{refundId} {
+      function orderOf(code) {
+        return get(/databases/$(database)/documents/orders/$(code)).data;
+      }
+
+      allow read: if isAdmin() || (signedIn() && resource.data.userId == request.auth.uid) || isMyWebsiteHistory();
+      allow create: if isAdmin() || (signedIn()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'requested'
+        && request.resource.data.amount == 0
+        && orderOf(request.resource.data.orderCode).userId == request.auth.uid
+        && orderOf(request.resource.data.orderCode).status == 'completed');
+      allow update: if isAdmin() || claimsWebsiteHistory();
+      allow delete: if isAdmin();
+    }
+
+    // What goes out to the shop counter each day.
+    match /counterMenus/{day} {
+      allow read, write: if isAdmin();
+    }
+
+    // Billplz and Lalamove keys: staff only, never public.
+    match /private/{document} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

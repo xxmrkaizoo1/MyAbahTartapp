@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025085588389",
+    "project_id": "myabahtartlejen",
+    "storage_bucket": "myabahtartlejen.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025085588389:android:a7e00108bd88ec12589e4c",
+        "android_client_info": {
+          "package_name": "com.example.myabahtartlejen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDaB2m0UeTPdV53xbcDh6ZyZc7Qi7k62u0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
