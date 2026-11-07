@@ -38,7 +38,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBjFzazWErnjxxH5z_TwdwynN3paNvRhSI',
+    apiKey: 'APi_KEY',
     appId: '1:1025085588389:web:4194894a6c461861589e4c',
     messagingSenderId: '1025085588389',
     projectId: 'myabahtartlejen',
@@ -48,14 +48,14 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDaB2m0UeTPdV53xbcDh6ZyZc7Qi7k62u0',
+    apiKey: 'API_KEY',
     appId: '1:1025085588389:android:a7e00108bd88ec12589e4c',
     messagingSenderId: '1025085588389',
     projectId: 'myabahtartlejen',
     storageBucket: 'myabahtartlejen.firebasestorage.app',
   );
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA1zRWPnNi_CDtySTMrrsvsbMVBtAZkeok',
+    apiKey: 'API_KEY',
     appId: '1:1025085588389:ios:91754087951a9d0e589e4c',
     messagingSenderId: '1025085588389',
     projectId: 'myabahtartlejen',
@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.myabahtartlejen',
   );
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA1zRWPnNi_CDtySTMrrsvsbMVBtAZkeok',
+    apiKey: 'API_KEY',
     appId: '1:1025085588389:ios:91754087951a9d0e589e4c',
     messagingSenderId: '1025085588389',
     projectId: 'myabahtartlejen',
@@ -71,6 +71,7 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.myabahtartlejen',
   );
   static const FirebaseOptions windows = FirebaseOptions(
+<<<<<<< HEAD
     apiKey: 'AIzaSyBjFzazWErnjxxH5z_TwdwynN3paNvRhSI',
     appId: '1:1025085588389:web:4194894a6c461861589e4c',
     messagingSenderId: '1025085588389',
@@ -78,5 +79,14 @@ class DefaultFirebaseOptions {
     authDomain: 'myabahtartlejen.firebaseapp.com',
     storageBucket: 'myabahtartlejen.firebasestorage.app',
     measurementId: 'G-FJH4TTHYBW',
+=======
+    apiKey: 'API_KEY',
+    appId: '1:63182134929:web:333ace4b35c101b50d6930',
+    messagingSenderId: '63182134929',
+    projectId: 'ai-development-5fbd2',
+    authDomain: 'ai-development-5fbd2.firebaseapp.com',
+    storageBucket: 'ai-development-5fbd2.firebasestorage.app',
+    measurementId: 'G-E1PT3LJWNE',
+>>>>>>> b4965972f66127436ac4ad1d712e381b9e6d512a
   );
 }
