@@ -10,6 +10,7 @@ import '../../theme.dart';
 import '../../widgets/common.dart';
 import '../../widgets/motion.dart';
 import '../../widgets/tart_art.dart';
+import 'ai_insights_screen.dart';
 import 'customers_screen.dart';
 import 'integrations_screen.dart';
 import 'pos_screen.dart';
@@ -47,6 +48,7 @@ class AdminMoreScreen extends StatelessWidget {
       children: staggered([
         tile(Icons.people_alt_outlined, 'Customers', 'Everyone who has ordered, with what they spent', () => _push(context, const CustomersScreen())),
         tile(Icons.bar_chart_rounded, 'Sales report', 'Online vs counter, best sellers, last 7–90 days', () => _push(context, const SalesReportScreen())),
+        tile(Icons.auto_awesome_rounded, 'AI insights', 'Sales and revenue forecasts, trends, AI summary', () => _push(context, const AiInsightsScreen())),
         tile(Icons.undo_rounded, 'Refunds', 'Approve or decline customer requests', () => _push(context, const RefundsScreen())),
         tile(Icons.checklist_rounded, 'Counter menu', 'What goes out to the counter today or tomorrow', () => _push(context, const CounterMenuScreen())),
         tile(Icons.confirmation_number_outlined, 'Vouchers', 'Discount codes customers can use', () => _push(context, const VouchersScreen())),

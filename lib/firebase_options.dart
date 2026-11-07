@@ -71,12 +71,12 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.myabahtartlejen',
   );
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAWgphHz75lCMWOp6mB7bVEG-enTKfu4O4',
-    appId: '1:63182134929:web:333ace4b35c101b50d6930',
-    messagingSenderId: '63182134929',
-    projectId: 'ai-development-5fbd2',
-    authDomain: 'ai-development-5fbd2.firebaseapp.com',
-    storageBucket: 'ai-development-5fbd2.firebasestorage.app',
-    measurementId: 'G-E1PT3LJWNE',
+    apiKey: 'AIzaSyBjFzazWErnjxxH5z_TwdwynN3paNvRhSI',
+    appId: '1:1025085588389:web:4194894a6c461861589e4c',
+    messagingSenderId: '1025085588389',
+    projectId: 'myabahtartlejen',
+    authDomain: 'myabahtartlejen.firebaseapp.com',
+    storageBucket: 'myabahtartlejen.firebasestorage.app',
+    measurementId: 'G-FJH4TTHYBW',
   );
 }
