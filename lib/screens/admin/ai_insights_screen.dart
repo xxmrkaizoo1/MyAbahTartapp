@@ -316,7 +316,12 @@ class _AiSummaryPanelState extends State<_AiSummaryPanel> {
     } catch (error) {
       debugPrint('Device storage unavailable, the AI server address won’t be remembered: $error');
     }
-    await _connect(_preferences?.getString(_urlKey) ?? LocalAiService.defaultUrl);
+    final saved = _preferences?.getString(_urlKey);
+    await _connect(saved ?? LocalAiService.defaultUrl);
+    // An old saved address (e.g. a Wi-Fi IP that changed) failed: try the USB link.
+    if (mounted && _error != null && _models.isEmpty && saved != null && saved != LocalAiService.defaultUrl) {
+      await _connect(LocalAiService.defaultUrl);
+    }
   }
 
   Future<void> _connect(String url) async {

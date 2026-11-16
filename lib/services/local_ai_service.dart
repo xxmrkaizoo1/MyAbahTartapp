@@ -28,9 +28,10 @@ class LocalAiService {
   final String baseUrl;
   final http.Client _client;
 
-  /// An Android emulator reaches the computer it runs on at 10.0.2.2. A real phone
-  /// needs the computer's network address, which can be set in the app.
-  static String get defaultUrl => !kIsWeb && defaultTargetPlatform == TargetPlatform.android ? 'http://10.0.2.2:11434' : 'http://localhost:11434';
+  /// localhost everywhere. On an Android phone or emulator this reaches the computer
+  /// over USB after running `adb reverse tcp:11434 tcp:11434` (tool/run_phone.ps1
+  /// does that), so no Wi-Fi is needed. Another address can be set in the app.
+  static String get defaultUrl => 'http://localhost:11434';
 
   static String normalizeUrl(String url) {
     var clean = url.trim();
