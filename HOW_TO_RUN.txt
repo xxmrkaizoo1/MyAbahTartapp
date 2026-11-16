@@ -1,0 +1,167 @@
+=====================================================
+  MYabah Tart Lejen app: how to run it, step by step
+=====================================================
+
+Open PowerShell or the VS Code terminal for every command below.
+
+
+-----------------------------------------------------
+STEP 1: Go to the project folder
+-----------------------------------------------------
+
+    cd C:\Users\HP\Downloads\myabah_tart_lejen\MyAbahTartapp
+
+
+-----------------------------------------------------
+STEP 2: Check Flutter is OK (first time only)
+-----------------------------------------------------
+
+    flutter doctor
+
+Fix anything with a red X. A yellow "!" is usually fine.
+
+
+-----------------------------------------------------
+STEP 3: Download the packages
+-----------------------------------------------------
+
+    flutter pub get
+
+Run this again whenever pubspec.yaml changes.
+
+
+-----------------------------------------------------
+STEP 4: Connect your phone (or choose another device)
+-----------------------------------------------------
+
+Android phone:
+  1. On the phone, open Settings > About phone and tap
+     "Build number" 7 times to turn on Developer options.
+  2. Go to Settings > Developer options and turn on "USB debugging".
+  3. Plug the phone into the computer with a USB cable.
+  4. On the phone, tap "Allow" when it asks to allow USB debugging.
+
+Then list the devices Flutter can see:
+
+    flutter devices
+
+You should see something like:
+    BRC NX1 (mobile)  - A65JUT5414000886 - android
+    Windows (desktop) - windows
+    Chrome (web)      - chrome
+    Edge (web)        - edge
+
+
+-----------------------------------------------------
+STEP 5: Run the app
+-----------------------------------------------------
+
+On your phone:
+    flutter run -d A65JUT5414000886
+
+In Chrome:
+    flutter run -d chrome
+
+As a Windows app:
+    flutter run -d windows
+
+The first run on a phone can take 3 to 10 minutes because it
+builds the Android app. Later runs are faster.
+
+While the app is running, type these keys in the terminal:
+    r   = hot reload (shows code changes straight away)
+    R   = hot restart (starts the app again)
+    q   = stop the app
+
+
+-----------------------------------------------------
+STEP 6: Open Kitchen mode (staff screens)
+-----------------------------------------------------
+
+1. Sign up for an account in the app.
+2. Open the Firebase console: https://console.firebase.google.com
+3. Go to Firestore Database > users > (your user) and set
+       role = admin
+4. Restart the app. "Kitchen mode" appears on the Profile screen.
+
+
+-----------------------------------------------------
+STEP 7 (optional): Turn on the AI Insights summary
+-----------------------------------------------------
+
+The sales forecasts work without this. Only the written AI
+summary needs Ollama.
+
+1. Download and install Ollama: https://ollama.com
+2. Download a model (one time):
+
+       ollama pull phi3:mini
+
+3. Running the app on Chrome or Windows on the SAME computer:
+   nothing else to do. The app uses http://localhost:11434
+
+4. Running the app on your PHONE:
+   a. Phone and computer must be on the same Wi-Fi.
+   b. Let Ollama accept connections from the phone. Run this
+      once, then quit Ollama and open it again:
+
+          setx OLLAMA_HOST 0.0.0.0
+
+   c. Find your computer's address:
+
+          ipconfig
+
+      Look for "IPv4 Address", for example 192.168.1.10
+   d. In the app, go to Kitchen mode > AI Insights, tap the
+      settings (gear) icon, and enter:
+
+    dummy :   http://192.168.1.10:11434
+    local ipv4:   http://10.25.240.61:11434
+
+      Use your own IPv4 address.
+   e. If it still can't connect, allow Ollama through
+      Windows Firewall when Windows asks.
+
+
+-----------------------------------------------------
+STEP 8 (optional): Run the tests
+-----------------------------------------------------
+
+    flutter analyze        checks the code for problems
+    flutter test           runs the tests
+
+
+-----------------------------------------------------
+STEP 9 (optional): Build an APK to install on phones
+-----------------------------------------------------
+
+    flutter build apk --release
+
+The file is saved here:
+    build\app\outputs\flutter-apk\app-release.apk
+
+Copy it to an Android phone and open it to install.
+
+
+-----------------------------------------------------
+IF SOMETHING GOES WRONG
+-----------------------------------------------------
+
+Phone not in "flutter devices":
+  - Unplug and plug it in again, and tap "Allow" on the phone.
+  - Try another USB cable (some cables only charge).
+  - Set the USB mode on the phone to "File transfer".
+
+Build errors or strange old errors:
+
+    flutter clean
+    flutter pub get
+    flutter run
+
+"Couldn't reach the AI server":
+  - Check that Ollama is open (llama icon in the taskbar).
+  - On a phone, check the address from STEP 7 and the Wi-Fi.
+
+"Ollama is running but has no models":
+
+    ollama pull phi3:mini
