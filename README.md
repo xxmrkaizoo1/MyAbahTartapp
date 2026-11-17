@@ -123,6 +123,17 @@ To deploy the Firestore security rules:
 firebase deploy --only firestore:rules
 ```
 
+### Use your own Firebase project
+
+The app is already connected to the shop's Firebase project (`myabahtartlejen`). To point it at a different project, install the [FlutterFire CLI](https://firebase.google.com/docs/flutter/setup) and run:
+
+```sh
+dart pub global activate flutterfire_cli
+flutterfire configure
+```
+
+This rewrites `lib/firebase_options.dart` and `android/app/google-services.json`. Turn on **Email/Password** sign-in and **Cloud Firestore** in the Firebase console, then deploy the Firestore rules with the command above.
+
 ### Make someone staff
 
 In the Firebase console, set `users/{uid}.role` to `admin`. **Kitchen mode** then appears on that person's profile screen.
@@ -209,7 +220,7 @@ Screenshots are saved to `test_preview/shots/`, so the images in this README upd
 
 ## Project layout
 
-```textt
+```text
 lib/
   models/     Products, orders, refunds and shop data
   screens/    shop/ (customers), admin/ (kitchen mode), auth/
@@ -217,6 +228,7 @@ lib/
               sales forecasts and the Ollama client
   widgets/    Shared UI
   theme.dart  App designs and the kitchen theme
+test/         Unit and widget tests
 ai_python/    Python versions of the sales forecast and Ollama client
 tool/         Phone launcher with the AI link (run_phone.ps1) and a
               one-time import from the old website's database
