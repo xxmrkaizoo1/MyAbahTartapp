@@ -63,7 +63,7 @@ Staff accounts get a separate dark workspace for the day-to-day running of the s
 
 ### AI insights
 
-The forecasts and trend report are worked out inside the app from the last 180 days of orders, so they need no setup. A forecast needs at least a few days of sales history before it appears.
+The forecasts and trend report are worked out inside the app from the last 180 days of orders, so they need no setup. A forecast appears once there are at least 14 days of history with sales on 5 or more of them.
 
 The written summary comes from [Ollama](https://ollama.com), which runs an AI model on the shop's own computer. No sales data goes to an outside AI service. The app picks the first installed model from `phi3:mini`, `qwen2.5-coder:1.5b` and `llama3.2:1b`, and you can change it on the screen.
 
@@ -82,6 +82,13 @@ Customers can pick from eight designs, and the choice is saved on their device. 
 
 The others are Raspberry & Butter, Blueberry & Coral, Mono Volt and Aurora Glow.
 
+## Built with
+
+- **Flutter** for the app on Android, iOS, web and desktop
+- **Firebase Authentication** for sign-in and **Cloud Firestore** for products, orders, refunds and shop settings
+- **Provider** for app state, **shared_preferences** for settings saved on the device and **Google Fonts** for the app designs
+- **Ollama** (optional) for the AI written summary, running on the shop's own computer
+
 ## Getting started
 
 You need the [Flutter SDK](https://docs.flutter.dev/get-started/install) with Dart 3.13.7 or newer. To deploy database rules, you also need the [Firebase CLI](https://firebase.google.com/docs/cli).
@@ -90,6 +97,25 @@ You need the [Flutter SDK](https://docs.flutter.dev/get-started/install) with Da
 flutter pub get
 flutter run
 ```
+
+To choose where the app runs, list the devices and pass one with `-d`:
+
+```sh
+flutter devices                 # phones, Chrome, Windows...
+flutter run -d chrome           # in the browser
+flutter run -d windows          # as a Windows app
+flutter run -d <device id>      # on a USB-connected phone
+```
+
+The first run on a phone can take 3 to 10 minutes. While it runs, press `r` to hot reload, `R` to restart and `q` to stop.
+
+To build an Android app you can install on any phone:
+
+```sh
+flutter build apk --release
+```
+
+The file is saved to `build/app/outputs/flutter-apk/app-release.apk`.
 
 To deploy the Firestore security rules:
 
@@ -123,18 +149,63 @@ To use another computer, tap the gear icon on the **AI insights** screen and ent
 
 [HOW_TO_RUN.txt](HOW_TO_RUN.txt) has a step-by-step guide and fixes for common errors.
 
+### Copy data from the old website
+
+`tool/import_website_data.py` copies customers, orders, refunds and reviews from the old Laravel website's MySQL database into Firebase. It never copies passwords and never overwrites orders made in the app. When a customer signs up in the app with the same email and verifies it, their website orders and refunds move to the new account.
+
+Start MySQL (for example in Laragon) and run `firebase login` first, then:
+
+```sh
+python tool/import_website_data.py            # preview what would be copied
+python tool/import_website_data.py --write    # copy it into Firebase
+```
+
 ### Not connected yet
 
 Online payment (Billplz) and live Lalamove bookings aren't connected. Staff can store the keys under **More > Payments & delivery APIs**, but the app doesn't call either service. Their secret keys can't live in the customer app, so a server such as Firebase Cloud Functions has to make those calls.
 
+## Python version of the AI
+
+`ai_python/` has the same sales forecast and Ollama client as the app, written in Python with only the standard library. It gives the same numbers as the app for the same orders, so you can check or reuse the forecasts outside Flutter.
+
+```python
+from datetime import datetime, timedelta
+from sales_forecast import ShopOrder, OrderItem, SalesHistory, Forecast, TrendReport
+
+now = datetime.now()
+orders = [
+    ShopOrder(created_at=now - timedelta(days=d), total=40 + d % 7 * 5, items=[OrderItem('Egg tart', 3)])
+    for d in range(1, 30)
+]
+
+history = SalesHistory.from_orders(orders, now)
+forecast = Forecast.compute(history.revenue, history.first_day, 7)  # None if there isn't enough history
+print(f'Next 7 days: RM{forecast.low:.2f} to RM{forecast.high:.2f} ({forecast.confidence.label} confidence)')
+
+trend = TrendReport.from_orders(orders, now)
+```
+
+Run it from inside `ai_python/`. A forecast needs at least 14 days of history with sales on 5 or more of them. To get a written summary, pass the prompt from `build_insight_prompt(...)` to `LocalAiService().generate(model, prompt)` in `local_ai_service.py`.
+
 ## Tests and screenshots
 
 ```sh
+flutter analyze                                 # check the code for problems
 flutter test                                    # run the tests in test/
 flutter test test_preview --update-goldens      # regenerate the screenshots
 ```
 
 Screenshots are saved to `test_preview/shots/`, so the images in this README update when you regenerate them.
+
+## Troubleshooting
+
+| Problem | Fix |
+| --- | --- |
+| Phone doesn't show in `flutter devices` | Plug it in again and tap **Allow** on the phone. Try another cable (some only charge) and set the USB mode to **File transfer**. |
+| Build errors or old errors that won't go away | Run `flutter clean`, then `flutter pub get` and `flutter run`. |
+| "Couldn't reach the AI server" | Check that Ollama is open (llama icon in the taskbar). On a phone, run `tool\run_phone.ps1` again to redo the USB link. |
+| "Ollama is running but has no models" | Run `ollama pull phi3:mini`. |
+| No **Kitchen mode** on the profile screen | Set `users/{uid}.role` to `admin` in Firebase, then restart the app. |
 
 ## Project layout
 
