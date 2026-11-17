@@ -59,6 +59,13 @@ Staff accounts get a separate dark workspace for the day-to-day running of the s
 - **Counter:** take walk-in sales by cash, e-wallet/QR or card, and choose what goes on the counter menu
 - **Reports:** online and counter sales over 7, 30 or 90 days, plus best sellers
 - **Shop management:** products, stock, collections, vouchers, customers, refunds, delivery fees and home page text
+- **AI insights:** revenue and sales forecasts for the next 7, 14 or 30 days, a trend report on what is selling more or less, and an optional written summary
+
+### AI insights
+
+The forecasts and trend report are worked out inside the app from the last 180 days of orders, so they need no setup. A forecast needs at least a few days of sales history before it appears.
+
+The written summary comes from [Ollama](https://ollama.com), which runs an AI model on the shop's own computer. No sales data goes to an outside AI service. The app picks the first installed model from `phi3:mini`, `qwen2.5-coder:1.5b` and `llama3.2:1b`, and you can change it on the screen.
 
 ## App designs
 
@@ -94,6 +101,28 @@ firebase deploy --only firestore:rules
 
 In the Firebase console, set `users/{uid}.role` to `admin`. **Kitchen mode** then appears on that person's profile screen.
 
+### Turn on the AI summary (optional)
+
+1. Install [Ollama](https://ollama.com) and download a model once:
+
+   ```sh
+   ollama pull phi3:mini
+   ```
+
+2. **Chrome or Windows on the same computer:** nothing else to do. The app uses `http://localhost:11434`.
+
+3. **Android phone:** plug it in by USB with USB debugging on, then run:
+
+   ```powershell
+   powershell -ExecutionPolicy Bypass -File tool\run_phone.ps1
+   ```
+
+   The script starts Ollama if it isn't running, runs `adb reverse tcp:11434 tcp:11434` so the phone reaches Ollama through the cable, then starts the app. It works without Wi-Fi, including on a mobile hotspot.
+
+To use another computer, tap the gear icon on the **AI insights** screen and enter its address, for example `http://192.168.1.10:11434`. That computer needs `OLLAMA_HOST=0.0.0.0` set and Ollama allowed through its firewall.
+
+[HOW_TO_RUN.txt](HOW_TO_RUN.txt) has a step-by-step guide and fixes for common errors.
+
 ### Not connected yet
 
 Online payment (Billplz) and live Lalamove bookings aren't connected. Staff can store the keys under **More > Payments & delivery APIs**, but the app doesn't call either service. Their secret keys can't live in the customer app, so a server such as Firebase Cloud Functions has to make those calls.
@@ -113,9 +142,12 @@ Screenshots are saved to `test_preview/shots/`, so the images in this README upd
 lib/
   models/     Products, orders, refunds and shop data
   screens/    shop/ (customers), admin/ (kitchen mode), auth/
-  services/   Auth, cart, Firestore repository, sample data
+  services/   Auth, cart, Firestore repository, sample data,
+              sales forecasts and the Ollama client
   widgets/    Shared UI
   theme.dart  App designs and the kitchen theme
-tool/         One-time import from the old website's database
+ai_python/    Python versions of the sales forecast and Ollama client
+tool/         Phone launcher with the AI link (run_phone.ps1) and a
+              one-time import from the old website's database
 test_preview/ Screenshot generator and output
 ```
