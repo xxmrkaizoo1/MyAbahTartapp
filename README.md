@@ -209,7 +209,7 @@ Screenshots are saved to `test_preview/shots/`, so the images in this README upd
 
 ## Project layout
 
-```text
+```textt
 lib/
   models/     Products, orders, refunds and shop data
   screens/    shop/ (customers), admin/ (kitchen mode), auth/
